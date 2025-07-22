@@ -50,22 +50,49 @@ if "is_premium" not in st.session_state:
     st.session_state["is_premium"] = False
 lang = st.session_state["lang"]
 
-# ==== data ====
+# ==== Real Alexandria Locations Data ====
 @st.cache_data
 def load_data():
     routes = {
-        "route 1": [
-            ("محطة الرمل", 31.2001, 29.9187),
-            ("سيدي جابر", 31.2231, 29.9489),
-            ("كليوباترا", 31.2256, 29.9634),
-            ("زيزينيا", 31.2341, 29.9721),
-            ("فيكتوريا", 31.247759, 29.978621)
+        "الخط الساحلي": [
+            ("كوبري ستانلي", 31.23527506293558, 29.94862016099542),
+            ("سان ستيفانو جراند بلازا", 31.24601782644359, 29.965841243803435),
+            ("سيدي جابر", 31.2208617429026, 29.942250513945172),
+            ("ميدان محطة الرمل", 31.203173647072855, 29.903093932160832),
+            ("ميدان المنشية", 31.179140410012433, 29.93719286099709),
+            ("مسجد المرسي أبو العباس", 31.205328252334947, 29.88281100517418),
+            ("قلعة قايتباي", 31.213900540286925, 29.885381374489256)
         ],
-        "route 2": [
-            ("المنشية", 31.1962, 29.8957),
-            ("بحري", 31.2005, 29.8837),
-            ("الجمرك", 31.2031, 29.8720),
+        "خط وسط البلد": [
+            ("جامعة الإسكندرية (الشاطبي)", 31.2107637709471, 29.913134876338436),
+            ("دار الأوبرا", 31.19746482072032, 29.901693934010236),
+            ("محطة مصر (السكة الحديد)", 31.193244662484144, 29.905219234852613),
+            ("سوق العطارين", 31.198304814331237, 29.901702930311835),
+            ("مكتبة الإسكندرية", 31.20895314416996, 29.909146329090756),
+            ("متحف الأحياء المائية", 31.213294244949033, 29.885120607861804)
         ],
+        "خط غرب الإسكندرية": [
+            ("أبو قير", 31.312266479088542, 30.05994801374512),
+            ("جامعة الإسكندرية (كلية الهندسة)", 31.206393797558594, 29.924822103325116),
+            ("مستشفى الجلاء", 31.228963876594598, 29.995854303324382),
+            ("سيتي سنتر الإسكندرية", 31.16679189991098, 29.93338827449065),
+            ("مول مصر", 31.200286608755498, 29.9004150456541),
+            ("برج العرب", 30.8453193910462, 29.582847132171086)
+        ],
+        "خط شرق الإسكندرية": [
+            ("حديقة المنتزه", 31.285603998836688, 30.016782201194538),
+            ("مستشفى المعمورة", 31.269708494525013, 30.0253957186656),
+            ("ميدان أحمد عرابي (المكس)", 31.19899024396635, 29.893135287982894),
+            ("العجمي", 31.09982701652395, 29.767096405349847),
+            ("مطار برج العرب الدولي", 30.927699869281312, 29.700135287990776)
+        ],
+        "خط الورديان": [
+            ("الورديان", 31.165292487511866, 29.865308151953784),
+            ("باكوس", 31.239424797645636, 29.966830890491288),
+            ("سيدي بشر", 31.25619309751545, 29.983371713222354),
+            ("العصافرة", 31.20507762935945, 29.90655057633866),
+            ("الإبراهيمية", 31.209006603155462, 29.933088160996242)
+        ]
     }
     dfs = []
     for route_name, stops in routes.items():
@@ -170,35 +197,183 @@ if selected == menu_options[lang][0]:
 
 # ==== Premium Page ====
 elif selected == menu_options[lang][2]:
-    st.markdown("### 🎯 ميزة Premium: الوصول لمكان معين")
-    if not st.session_state["is_premium"]:
-        st.markdown("🔐 هذه الميزة متاحة فقط للمشتركين Premium.")
-        if st.button("اشترك في Premium (بـ 10 جنيه رمزي)"):
-            st.session_state["is_premium"] = True
-            st.success("✅ تم تفعيل Premium مؤقتًا لتجربة النموذج.")
+    # Set language-specific texts
+    if lang == "ar":
+        title = "🎯 ميزة Premium: الوصول لمكان معين"
+        subscribe_msg = "🔐 هذه الميزة متاحة فقط للمشتركين Premium."
+        subscribe_btn = "اشترك في Premium (بـ 10 جنيه رمزي)"
+        success_msg = "✅ تم تفعيل Premium."
+        input_placeholder = "مثال: محطة مصر"
+        input_label = "اكتب اسم المكان اللي رايح له ثم اضغط انتر"
+        not_supported_msg = "⚠️ المكان غير مدعوم. جرب أحد هذه الأماكن:"
+        result_title = "الطريق المقترح"
+        board_from = "اركب من"
+        get_off_at = "وانزل عند"
+        cost = "التكلفة"
+        estimated_time = "الوقت التقديري"
+        currency = "جنيهاً"
+        time_unit = "دقيقة"
     else:
-        destination = st.text_input("اكتب اسم المكان اللي رايح له (مثلاً: محطة مصر)")
-        if destination:
-            fake_places = {
-                "محطة مصر": (31.1910, 29.9020),
-                "مكتبة الإسكندرية": (31.2089, 29.9092),
-                "ستانلي": (31.2405, 29.9633),
-            }
-            if destination in fake_places:
-                dest_lat, dest_lon = fake_places[destination]
-                dists = data.apply(lambda row: np.sqrt((row['lat'] - dest_lat)**2 + (row['lon'] - dest_lon)**2), axis=1)
-                nearest_row = data.loc[dists.idxmin()]
-                path = get_route_path(nearest_row['lat'], nearest_row['lon'], dest_lat, dest_lon)
-                m3 = folium.Map(location=[(nearest_row['lat'] + dest_lat)/2, (nearest_row['lon'] + dest_lon)/2], zoom_start=13)
-                folium.Marker([nearest_row['lat'], nearest_row['lon']], tooltip=f"اركب من: {nearest_row['stop_name']}", icon=folium.Icon(color='blue')).add_to(m3)
-                folium.Marker([dest_lat, dest_lon], tooltip=f"انزل عند: {destination}", icon=folium.Icon(color='red')).add_to(m3)
+        title = "🎯 Premium Feature: Reach a Specific Location"
+        subscribe_msg = "🔐 This feature is only available for Premium subscribers."
+        subscribe_btn = "Subscribe to Premium (10 EGP symbolic)"
+        success_msg = "✅ Premium temporarily activated."
+        input_placeholder = "Example: Misr Station"
+        input_label = "Enter your destination and press Enter"
+        not_supported_msg = "⚠️ Location not supported. Try one of these places:"
+        result_title = "Suggested Route"
+        board_from = "Board from"
+        get_off_at = "Get off at"
+        cost = "Cost"
+        estimated_time = "Estimated time"
+        currency = "EGP"
+        time_unit = "minutes"
+
+    st.markdown(f"### {title}")
+    
+    if not st.session_state["is_premium"]:
+        st.markdown(subscribe_msg)
+        if st.button(subscribe_btn):
+            st.session_state["is_premium"] = True
+            st.success(success_msg)
+    else:
+        # Add session variable to store selected start point
+        if 'selected_start' not in st.session_state:
+            st.session_state.selected_start = None
+        
+        destination = st.text_input(input_label, 
+                                 key="premium_destination",
+                                 placeholder=input_placeholder,
+                                 on_change=lambda: st.session_state.update(selected_start=None))
+        
+        # Bilingual landmarks dictionary
+        alexandria_landmarks = {
+    # Transportation
+    "محطة مصر": (31.193244662484144, 29.905219234852613),
+    "Misr Station": (31.193244662484144, 29.905219234852613),
+    "ميدان محطة الرمل": (31.203173647072855, 29.903093932160832),
+    "Raml Station Square": (31.203173647072855, 29.903093932160832),
+    
+    # Landmarks
+    "مكتبة الإسكندرية": (31.20895314416996, 29.909146329090756),
+    "Alexandria Library": (31.20895314416996, 29.909146329090756),
+    "قلعة قايتباي": (31.213900540286925, 29.885381374489256),
+    "Qaitbay Citadel": (31.213900540286925, 29.885381374489256),
+    "مسجد المرسي أبو العباس": (31.205328252334947, 29.88281100517418),
+    "Abu al-Abbas al-Mursi Mosque": (31.205328252334947, 29.88281100517418),
+    "متحف الأحياء المائية": (31.213294244949033, 29.885120607861804),
+    "Aquatic Museum": (31.213294244949033, 29.885120607861804),
+    
+    # Shopping
+    "سيتي سنتر الإسكندرية": (31.16679189991098, 29.93338827449065),
+    "City Centre Alexandria": (31.16679189991098, 29.93338827449065),
+    "مول مصر": (31.200286608755498, 29.9004150456541),
+    "Mall of Egypt": (31.200286608755498, 29.9004150456541),
+    "سان ستيفانو جراند بلازا": (31.24601782644359, 29.965841243803435),
+    "San Stefano Grand Plaza": (31.24601782644359, 29.965841243803435),
+    
+    # Education
+    "جامعة الإسكندرية (الشاطبي)": (31.21077294696511, 29.913016859146865),
+    "Alexandria University (Shatby)": (31.21077294696511, 29.913016859146865),
+    "جامعة الإسكندرية (كلية الهندسة)": (31.206393797558594, 29.924822103325116),
+    "Alexandria University (Engineering)": (31.206393797558594, 29.924822103325116),
+    
+    # Parks
+    "حديقة المنتزه": (31.285603998836688, 30.016782201194538),
+    "Montaza Park": (31.285603998836688, 30.016782201194538),
+    
+    # Transportation Hubs
+    "مطار برج العرب الدولي": (30.927699869281312, 29.700135287990776),
+    "Borg El Arab Airport": (30.927699869281312, 29.700135287990776),
+    "كوبري ستانلي": (31.23527506293558, 29.94862016099542),
+    "Stanley Bridge": (31.23527506293558, 29.94862016099542),
+    
+    # Hospitals
+    "مستشفى الجلاء": (31.228963876594598, 29.995854303324382),
+    "El Galaa Hospital": (31.228963876594598, 29.995854303324382),
+    "مستشفى المعمورة": (31.269708494525013, 30.0253957186656),
+    "El Maamoura Hospital": (31.269708494525013, 30.0253957186656),
+    
+    # Markets
+    "سوق العطارين": (31.198304814331237, 29.901702930311835),
+    "Attarine Market": (31.198304814331237, 29.901702930311835),
+    
+    # Squares
+    "ميدان المنشية": (31.179140410012433, 29.93719286099709),
+    "Mansheya Square": (31.179140410012433, 29.93719286099709),
+    "ميدان أحمد عرابي (المكس)": (31.19899024396635, 29.893135287982894),
+    "Ahmed Orabi Square (El Max)": (31.19899024396635, 29.893135287982894),
+    
+    # Neighborhoods
+    "العجمي": (31.09982701652395, 29.767096405349847),
+    "Agamy": (31.09982701652395, 29.767096405349847),
+    "أبو قير": (31.312266479088542, 30.05994801374512),
+    "Abu Qir": (31.312266479088542, 30.05994801374512),
+    "الورديان": (31.165292487511866, 29.865308151953784),
+    "Wardian": (31.165292487511866, 29.865308151953784),
+    "سيدي جابر": (31.2208617429026, 29.942250513945172),
+    "Sidi Gaber": (31.2208617429026, 29.942250513945172),
+    "سيدي بشر": (31.25619309751545, 29.983371713222354),
+    "Sidi Bishr": (31.25619309751545, 29.983371713222354),
+    "العصافرة": (31.20507762935945, 29.90655057633866),
+    "El Asafra": (31.20507762935945, 29.90655057633866),
+    "الإبراهيمية": (31.209006603155462, 29.933088160996242),
+    "Ibrahimia": (31.209006603155462, 29.933088160996242),
+    "باكوس": (31.239424797645636, 29.966830890491288),
+    "Bakos": (31.239424797645636, 29.966830890491288),
+    
+    # Cultural
+    "دار الأوبرا": (31.19746482072032, 29.901693934010236),
+    "Opera House": (31.19746482072032, 29.901693934010236)
+        }
+        
+        if destination and destination in alexandria_landmarks:
+            if st.session_state.selected_start is None:
+                # Get random start point (excluding destination)
+                possible_starts = [s for s in data['stop_name'].unique() 
+                                 if s != destination and not any(d in s for d in [destination, "محطة", "Station"])]
+                if possible_starts:
+                    st.session_state.selected_start = np.random.choice(possible_starts)
+            
+            if st.session_state.selected_start:
+                start_row = data[data['stop_name'] == st.session_state.selected_start].iloc[0]
+                dest_lat, dest_lon = alexandria_landmarks[destination]
+                
+                # Calculate route
+                path = get_route_path(start_row['lat'], start_row['lon'], dest_lat, dest_lon)
+                
+                # Display results
+                st.markdown(f"""
+                <div style='border:1px solid #2E7D32; border-radius:10px; padding:15px; margin:10px 0; background-color:#f5f5f5;'>
+                    <h4 style='color:#2E7D32;'>{result_title}</h4>
+                    <p>{board_from} <strong>{st.session_state.selected_start}</strong></p>
+                    <p>{get_off_at} <strong>{destination}</strong></p>
+                    <hr style='margin:8px 0;'>
+                    <p>{cost}: <strong>{start_row['fare']} {currency}</strong></p>
+                    <p>{estimated_time}: <strong>{start_row['estimated_time_min']} {time_unit}</strong></p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # Show map
+                m3 = folium.Map(location=[(start_row['lat'] + dest_lat)/2, (start_row['lon'] + dest_lon)/2], 
+                              zoom_start=13)
+                folium.Marker([start_row['lat'], start_row['lon']], 
+                            tooltip=f"{board_from}: {st.session_state.selected_start}", 
+                            icon=folium.Icon(color='blue')).add_to(m3)
+                folium.Marker([dest_lat, dest_lon], 
+                            tooltip=f"{get_off_at}: {destination}", 
+                            icon=folium.Icon(color='red')).add_to(m3)
                 folium.PolyLine(path, color='purple', weight=4).add_to(m3)
                 st_folium(m3, width=1000, height=500)
-                st.markdown(f"🚌 اركب من **{nearest_row['stop_name']}** وانزل عند **{destination}**")
-                st.markdown(f"💰 التكلفة: **{nearest_row['fare']} ج**")
-                st.markdown(f"⏱️ الوقت التقديري: **{nearest_row['estimated_time_min']} دقيقة**")
+        
+        elif destination and destination not in alexandria_landmarks:
+            st.warning(not_supported_msg)
+            # Show supported places in selected language
+            if lang == "ar":
+                supported_places = [place for place in alexandria_landmarks.keys() if not place.isascii()]
             else:
-                st.warning("⚠️ المكان غير مدعوم حاليًا في النموذج التجريبي.")
+                supported_places = [place for place in alexandria_landmarks.keys() if place.isascii()]
+            st.write(supported_places)
 
 # ==== Routes Page ====
 elif selected == menu_options[lang][1]:
