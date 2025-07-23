@@ -1,0 +1,7 @@
+streamlit==1.35.0
+pandas==2.2.2
+folium==0.16.0
+streamlit-folium==0.18.0
+streamlit-option-menu==0.3.6
+openrouteservice==2.3.0
+numpy==1.26.4
