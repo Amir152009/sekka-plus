@@ -428,7 +428,7 @@ elif selected == menu_options[lang][3]:
 # ==== Help Page ====
 elif selected == menu_options[lang][4]:
     st.markdown("### مساعدة" if lang == "ar" else "### Help")
-    st.markdown("راسلنا على: support@whereismystop.com" if lang == "ar" else "Contact: support@whereismystop.com")
+    st.markdown("راسلنا على: support@sekkaplus.com" if lang == "ar" else "Contact: support@sekkaplus.com")
 
 # ==== Feedback Page ====
 elif selected == menu_options[lang][5]:  # index 5 = Feedback
