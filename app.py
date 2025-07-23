@@ -6,6 +6,9 @@ from streamlit_option_menu import option_menu
 import openrouteservice
 import numpy as np
 
+# auto wide mode
+st.set_page_config(layout="wide")
+
 st.markdown("""
     <style>
     .main {
